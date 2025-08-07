@@ -1,15 +1,73 @@
 import url from 'url'
+
 export function convert(link) {
 	const parsedUrl = url.parse(link, true);
 
-	const configObj =
-	{
+	const configObj = {
 		"dns": {
 			"hosts": {
-				"domain:googleapis.cn": "googleapis.com"
+				"geosite:category-ads-all": "127.0.0.1",
+				"domain:googleapis.cn": "googleapis.com",
+				"dns.alidns.com": [
+					"223.5.5.5",
+					"223.6.6.6",
+					"2400:3200::1",
+					"2400:3200:baba::1"
+				],
+				"one.one.one.one": [
+					"1.1.1.1",
+					"1.0.0.1",
+					"2606:4700:4700::1111",
+					"2606:4700:4700::1001"
+				],
+				"dot.pub": [
+					"1.12.12.12",
+					"120.53.53.53"
+				],
+				"dns.google": [
+					"8.8.8.8",
+					"8.8.4.4",
+					"2001:4860:4860::8888",
+					"2001:4860:4860::8844"
+				],
+				"dns.quad9.net": [
+					"9.9.9.9",
+					"149.112.112.112",
+					"2620:fe::fe",
+					"2620:fe::9"
+				],
+				"common.dot.dns.yandex.net": [
+					"77.88.8.8",
+					"77.88.8.1",
+					"2a02:6b8::feed:0ff",
+					"2a02:6b8:0:1::feed:0ff"
+				]
 			},
 			"servers": [
-				"1.1.1.1"
+				"1.1.1.1",
+				{
+					"address": "1.1.1.1",
+					"domains": [
+						"domain:googleapis.cn",
+						"domain:gstatic.com"
+					]
+				},
+				{
+					"address": "223.5.5.5",
+					"domains": [
+						"domain:dns.alidns.com",
+						"domain:doh.pub",
+						"domain:dot.pub",
+						"domain:doh.360.cn",
+						"domain:dot.360.cn",
+						"geosite:cn",
+						"geosite:geolocation-cn"
+					],
+					"expectIPs": [
+						"geoip:cn"
+					],
+					"skipFallback": true
+				}
 			]
 		},
 		"inbounds": [
@@ -27,18 +85,10 @@ export function convert(link) {
 						"http",
 						"tls"
 					],
-					"enabled": true
+					"enabled": true,
+					"routeOnly": false
 				},
 				"tag": "socks"
-			},
-			{
-				"listen": "127.0.0.1",
-				"port": 10809,
-				"protocol": "http",
-				"settings": {
-					"userLevel": 8
-				},
-				"tag": "http"
 			}
 		],
 		"log": {
@@ -47,7 +97,7 @@ export function convert(link) {
 		"outbounds": [
 			{
 				"mux": {
-					"concurrency": 8,
+					"concurrency": -1,
 					"enabled": false
 				},
 				"protocol": "vless",
@@ -55,39 +105,42 @@ export function convert(link) {
 					"vnext": [
 						{
 							"address": parsedUrl.hostname,
-							"port": parseInt(parsedUrl.port),
+							"port": parseInt(parsedUrl.port || 443),
 							"users": [
 								{
 									"encryption": "none",
-									"flow": "",
 									"id": parsedUrl.auth,
-									"level": 8,
-									"security": "auto"
+									"level": 8
 								}
 							]
 						}
 					]
 				},
 				"streamSettings": {
-					"grpcSettings": {
-						"multiMode": false,
-						"serviceName": parsedUrl.query.serviceName
+					"network": parsedUrl.query.type || "ws",
+					"security": parsedUrl.query.security || "tls",
+					"sockopt": {
+						"dialerProxy": "fragment"
 					},
-					"network": parsedUrl.query.type,
-					"security": parsedUrl.query.security,
 					"tlsSettings": {
-						"allowInsecure": false,
-						"alpn": [
-							parsedUrl.query.alpn
-						],
-						"serverName": parsedUrl.query.sni
+						"allowInsecure": parsedUrl.query.allowInsecure === "1" || true,
+						"show": false,
+						"serverName": parsedUrl.query.sni || parsedUrl.hostname
+					},
+					"wsSettings": {
+						"headers": {
+							"Host": parsedUrl.query.host || ""
+						},
+						"path": parsedUrl.query.path || "/"
 					}
 				},
 				"tag": "proxy"
 			},
 			{
 				"protocol": "freedom",
-				"settings": {},
+				"settings": {
+					"domainStrategy": "UseIP"
+				},
 				"tag": "direct"
 			},
 			{
@@ -98,10 +151,35 @@ export function convert(link) {
 					}
 				},
 				"tag": "block"
+			},
+			{
+				"protocol": "freedom",
+				"settings": {
+					"fragment": {
+						"interval": "10-20",
+						"length": "50-100",
+						"packets": "tlshello"
+					},
+					"noises": [
+						{
+							"delay": "10-16",
+							"packet": "10-20",
+							"type": "rand"
+						}
+					]
+				},
+				"streamSettings": {
+					"network": "tcp",
+					"sockopt": {
+						"TcpNoDelay": true,
+						"mark": 255
+					}
+				},
+				"tag": "fragment"
 			}
 		],
+		"remarks": parsedUrl.query.remarks || "VLESS Configuration",
 		"routing": {
-			"domainMatcher": "mph",
 			"domainStrategy": "IPIfNonMatch",
 			"rules": [
 				{
@@ -111,6 +189,93 @@ export function convert(link) {
 					"outboundTag": "proxy",
 					"port": "53",
 					"type": "field"
+				},
+				{
+					"ip": [
+						"223.5.5.5"
+					],
+					"outboundTag": "direct",
+					"port": "53",
+					"type": "field"
+				},
+				{
+					"domain": [
+						"domain:googleapis.cn",
+						"domain:gstatic.com"
+					],
+					"outboundTag": "proxy",
+					"type": "field"
+				},
+				{
+					"network": "udp",
+					"outboundTag": "block",
+					"port": "443",
+					"type": "field"
+				},
+				{
+					"domain": [
+						"geosite:category-ads-all"
+					],
+					"outboundTag": "block",
+					"type": "field"
+				},
+				{
+					"ip": [
+						"geoip:private"
+					],
+					"outboundTag": "direct",
+					"type": "field"
+				},
+				{
+					"domain": [
+						"geosite:private"
+					],
+					"outboundTag": "direct",
+					"type": "field"
+				},
+				{
+					"domain": [
+						"domain:dns.alidns.com",
+						"domain:doh.pub",
+						"domain:dot.pub",
+						"domain:doh.360.cn",
+						"domain:dot.360.cn",
+						"geosite:cn",
+						"geosite:geolocation-cn"
+					],
+					"outboundTag": "direct",
+					"type": "field"
+				},
+				{
+					"ip": [
+						"223.5.5.5/32",
+						"223.6.6.6/32",
+						"2400:3200::1/128",
+						"2400:3200:baba::1/128",
+						"119.29.29.29/32",
+						"1.12.12.12/32",
+						"120.53.53.53/32",
+						"2402:4e00::/128",
+						"2402:4e00:1::/128",
+						"180.76.76.76/32",
+						"2400:da00::6666/128",
+						"114.114.114.114/32",
+						"114.114.115.115/32",
+						"180.184.1.1/32",
+						"180.184.2.2/32",
+						"101.226.4.6/32",
+						"218.30.118.6/32",
+						"123.125.81.6/32",
+						"140.207.198.6/32",
+						"geoip:cn"
+					],
+					"outboundTag": "direct",
+					"type": "field"
+				},
+				{
+					"outboundTag": "proxy",
+					"port": "0-65535",
+					"type": "field"
 				}
 			]
 		}
@@ -118,3 +283,5 @@ export function convert(link) {
 
 	return configObj;
 }
+
+console.log(JSON.stringify(convert("vless://a5e0c391-accd-45a7-8bb9-99ffb9b09b16@86.104.74.207:443?security=tls&encryption=none&type=ws#%F0%9F%87%AB%F0%9F%87%B7%5BTelegram%3ANetifyVPN%5D")))
