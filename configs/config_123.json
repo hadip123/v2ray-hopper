@@ -1,0 +1,110 @@
+{
+    "dns": {
+        "hosts": {
+            "domain:googleapis.cn": "googleapis.com"
+        },
+        "servers": [
+            "1.1.1.1"
+        ]
+    },
+    "inbounds": [
+        {
+            "listen": "127.0.0.1",
+            "port": 10808,
+            "protocol": "socks",
+            "settings": {
+                "auth": "noauth",
+                "udp": true,
+                "userLevel": 8
+            },
+            "sniffing": {
+                "destOverride": [
+                    "http",
+                    "tls"
+                ],
+                "enabled": true
+            },
+            "tag": "socks"
+        },
+        {
+            "listen": "127.0.0.1",
+            "port": 10809,
+            "protocol": "http",
+            "settings": {
+                "userLevel": 8
+            },
+            "tag": "http"
+        }
+    ],
+    "log": {
+        "loglevel": "warning"
+    },
+    "outbounds": [
+        {
+            "mux": {
+                "concurrency": 8,
+                "enabled": false
+            },
+            "protocol": "vless",
+            "settings": {
+                "vnext": [
+                    {
+                        "address": "2a01:4f9:c011:295a::1",
+                        "port": 8880,
+                        "users": [
+                            {
+                                "encryption": "none",
+                                "flow": "",
+                                "id": "31cc285f-5358-41df-8dca-d7f73a00f152",
+                                "level": 8,
+                                "security": "auto"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "streamSettings": {
+                "grpcSettings": {
+                    "multiMode": false
+                },
+                "network": "tcp",
+                "security": "none",
+                "tlsSettings": {
+                    "allowInsecure": false,
+                    "alpn": [
+                        null
+                    ]
+                }
+            },
+            "tag": "proxy"
+        },
+        {
+            "protocol": "freedom",
+            "settings": {},
+            "tag": "direct"
+        },
+        {
+            "protocol": "blackhole",
+            "settings": {
+                "response": {
+                    "type": "http"
+                }
+            },
+            "tag": "block"
+        }
+    ],
+    "routing": {
+        "domainMatcher": "mph",
+        "domainStrategy": "IPIfNonMatch",
+        "rules": [
+            {
+                "ip": [
+                    "1.1.1.1"
+                ],
+                "outboundTag": "proxy",
+                "port": "53",
+                "type": "field"
+            }
+        ]
+    }
+}
