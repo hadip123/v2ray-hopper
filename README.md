@@ -17,7 +17,7 @@ docker build -t v2ray-hopper environment_docker_image/
 #### Gattering the config files and testing them
 There's a script in the `/app` direcotry in the docker image created.
 ```bash
-docker run -it --network=host --rm -v ./:/app v2ray-hopper "/app/gattc"
+docker run -it --rm -v ./:/app v2ray-hopper "/app/gattc"
 ```
 #### Running the proxy server
 - with docker compose
