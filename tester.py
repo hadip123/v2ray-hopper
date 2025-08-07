@@ -30,7 +30,7 @@ for config_file in config_files:
     except Exception as e:
         print(e)
         continue
-
-    process.kill()
+    finally:
+        process.kill()
 
 f.close()
