@@ -1,0 +1,3 @@
+#!/bin/zsh
+
+source /venv/env/bin/activate && /bin/zsh

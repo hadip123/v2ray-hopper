@@ -10,3 +10,7 @@ WORKDIR /venv
 RUN python3 -m venv env
 
 RUN . env/bin/activate && pip3 install requests "requests[socks]" dotenv
+
+WORKDIR /app
+
+RUN mkdir -p /app/tester/wcp /app/tester/configs

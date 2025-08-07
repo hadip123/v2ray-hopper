@@ -1,0 +1,9 @@
+#!/bin/zsh
+
+cd /app/tester
+
+npm i
+
+node index.js
+
+source /venv/env/bin/activate && python3 tester.py
