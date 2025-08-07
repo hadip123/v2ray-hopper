@@ -2,6 +2,7 @@ services:
   hopper:
     build: ./environment_docker_image/
     container_name: v2ray-hopper
+    network: host
     volumes:
       - ./:/app
     command: ["sh", "/app/entrypoint.sh"]
