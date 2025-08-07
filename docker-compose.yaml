@@ -2,6 +2,7 @@ services:
   hopper:
     build: ./environment_docker_image/
     container_name: v2ray-hopper
+    restart: always
     network_mode: host
     environment:
       PATHS_DIR: /app/tester/wcp
