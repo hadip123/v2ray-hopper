@@ -15,6 +15,7 @@ proxy = "socks5://127.0.0.1:10808"
 
 
 def choose_config_file():
+    print("CHOOSING THE CONFIG FILE")
     configs = os.listdir(os.getenv("PATHS_DIR"))
     configs.sort()
     f = open(f"{os.getenv("PATHS_DIR")}/{configs[0]}", "r")
@@ -31,7 +32,12 @@ while True:
         res = requests.get("https://icanhazip.com",
                            proxies=dict(https=proxy, http=proxy))
     except Exception as e:
+        print(e)
+        process.kill()
+        process = subprocess.Popen(
+            ["v2ray", "run", "-c", choose_config_file()])
+        time.sleep(3)
         continue
-    time.sleep(5)
+    time.sleep(10)
 
 process.kill()
