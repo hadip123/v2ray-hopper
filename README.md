@@ -28,11 +28,12 @@ docker compose up -d
 ```bash
 docker run --name vhopper -d --network=host -v ./:/app -e PATHS_DIR=/app/tester/wcp -e CONFIGS_DIR=/app/tester/configs v2ray-hopper:latest "/app/entrypoint"
 ```
+Now proxy is up and running on socks5://<your_host>:10808
 #### Restarting the server
 ```bash
 docker restart vhopper
 ```
-### Stopping the server
+#### Stopping the server
 ```bash
 docker stop vhopper
 docker rm vhopper
