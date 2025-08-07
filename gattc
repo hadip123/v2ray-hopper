@@ -4,6 +4,8 @@ cd /app/tester
 
 npm i
 
+mkdir -p configs wcp
+
 node index.js
 
 source /venv/env/bin/activate && python3 tester.py
