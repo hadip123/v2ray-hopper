@@ -38,6 +38,6 @@ while True:
             ["v2ray", "run", "-c", choose_config_file()])
         time.sleep(3)
         continue
-    time.sleep(10)
+    time.sleep(60)
 
 process.kill()
