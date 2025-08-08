@@ -1,6 +1,5 @@
 import subprocess
 import os
-import time
 from datetime import datetime
 import random
 
@@ -28,9 +27,11 @@ for config_file in config_files:
 
     try:
         response = requests.get(
-            "https://icanhazip.com", proxies=dict(http=http_proxy, https=https_proxy), timeout=2)
-        print(response.text)
-        print("-----------------WORKED-------" + config_file)
+            "https://youtube.com", proxies=dict(http=http_proxy, https=https_proxy), timeout=1)
+        elapsed = response.elapsed.total_seconds() * 1000
+        print(
+            f"-----------------REACHED in {elapsed}ms-----------------" + config_file)
+
         f = open(f"./wcp/working_configs_paths_{formatted_date}.txt", "a")
         f.write(config_file + "\n")
         f.close()
