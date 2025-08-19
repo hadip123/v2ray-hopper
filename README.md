@@ -17,8 +17,11 @@ docker build -t v2ray-hopper environment_docker_image/
 #### Gattering the config files and testing them
 There's a script in the `/app` direcotry in the docker image created.
 ```bash
-docker run -it --rm -v ./:/app v2ray-hopper "/app/gattc"
+docker run -it --rm -v ./:/app -e TEST_URL=https://google.com -e ANTI_403=false v2ray-hopper "/app/gattc"
 ```
+Environmental variables:
+* TEST_URL defaut=https://google.com
+* ANTI_403 default=false
 #### Running the proxy server
 - with docker compose
 ```bash
