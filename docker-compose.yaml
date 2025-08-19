@@ -3,7 +3,8 @@ services:
     build: ./environment_docker_image/
     container_name: v2ray-hopper
     restart: always
-    network_mode: host
+    ports:
+      - "8900:10808"
     environment:
       PATHS_DIR: /app/tester/wcp
       CONFIGS_DIR: /app/tester/configs

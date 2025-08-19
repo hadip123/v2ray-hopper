@@ -23,15 +23,16 @@ Environmental variables:
 * TEST_URL defaut=https://google.com
 * ANTI_403 default=false
 #### Running the proxy server
+You can specify the port for the proxy.
 - with docker compose
 ```bash
 docker compose up -d
 ```
 - w/o docker compose
 ```bash
-docker run --name vhopper -d --network=host -v ./:/app -e PATHS_DIR=/app/tester/wcp -e CONFIGS_DIR=/app/tester/configs v2ray-hopper:latest "/app/entrypoint"
+docker run --name vhopper -d -p "8900:10808" -v ./:/app -e PATHS_DIR=/app/tester/wcp -e CONFIGS_DIR=/app/tester/configs v2ray-hopper:latest "/app/entrypoint"
 ```
-Now proxy is up and running on socks5://<your_host>:10808
+Now proxy is up and running on socks5://<your_host>:8900
 #### Restarting the server
 ```bash
 docker restart vhopper
